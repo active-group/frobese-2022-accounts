@@ -1,7 +1,6 @@
 -module(web_frontend).
 -export([init/2]).
 
-
 success() ->
     << "
       <p> Account with account number ~p was opened successfully </p> ~n
@@ -26,23 +25,27 @@ form() ->
 
 
 init(Req, add) ->
-
     lager:info("Creating new account"),
 
     {ok, KeyValuesL, _} = cowboy_req:read_urlencoded_body(Req),
 
     KeyValues = maps:from_list(KeyValuesL),
+
+    Accountnumber = database:unique_account_number(),
     Firstname = maps:get(<<"accounts_firstname">>, KeyValues),
     Secondname = maps:get(<<"accounts_secondname">>, KeyValues),
+    Amount = 1000,
 
-    % dispatch
-    AccountNumber = 1,
-    Body = io_lib:format(success(), [AccountNumber]),
+    % TODO use account record instead
+    database:put_account({account, Accountnumber, Firstname, Secondname, Amount}),
 
+    Body = io_lib:format(success(), [Accountnumber]),
+    
     Req2 = cowboy_req:reply(200, #{<<"content-type">> => <<"text/html">>}, Body, Req),
-
-    lager:info("Created account with account number ~p", [AccountNumber]),
-
+    lager:info("Created account with account number ~p", [Accountnumber]),
+    
+    Accounts = database:get_all_accounts(),
+    lager:info("All Accounts ~p", [Accounts]),
     {ok, Req2, []};
 
 init(Req0, index) ->

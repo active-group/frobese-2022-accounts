@@ -8,9 +8,7 @@
 
 -behaviour(supervisor).
 
--export([start_link/0]).
-
--export([init/1]).
+-export([start_link/0, init/1]).
 
 -define(SERVER, ?MODULE).
 

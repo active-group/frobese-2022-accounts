@@ -13,7 +13,7 @@ start_cowboy() ->
 
 
 start(_StartType, _StartArgs) ->
-
+    database:init_database(),
     lager:info("Starting accounts-service: ~p~n", [node()]),
 
     start_cowboy(),

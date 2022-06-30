@@ -5,7 +5,7 @@
 -export([start_link/1, handle_cast/2, init/1, broadcast_new_account/1, register_test/1, create_accounts/0]).
 
 start_link(Start) ->
-    gen_server:start_link({global, account_feed}, ?MODULE, Start, [{debug, [trace]}]).
+    gen_server:start_link({local, account_feed}, ?MODULE, Start, [{debug, [trace]}]).
 
 broadcast_new_account(Account) -> gen_server:cast(account_feed, Account).
 

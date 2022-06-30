@@ -11,7 +11,7 @@ broadcast_new_account(Account) -> gen_server:cast(account_feed, Account).
 
 send_events([], _) -> [];
 send_events(EventsList, Pid) -> 
-    lists:map(fun (Event) -> 
+    lists:foreach(fun (Event) -> 
         gen_server:cast(Pid, {account_service, Event#event.number, create_account, Event#event.payload}) end, 
         EventsList
     ).
@@ -30,7 +30,7 @@ handle_cast({register, Pid, Counter}, {RegisteredProcessesState, Count}) ->
 handle_cast(Account, {RegisteredProcessesState, Count}) -> 
     NewCount = Count + 1,
     RegisteredProcessesAsList = sets:to_list(RegisteredProcessesState),
-    lists:map(fun (Pid) -> 
+    lists:foreach(fun (Pid) -> 
         gen_server:cast(Pid, {account_service, NewCount, create_account, Account}) end, 
         RegisteredProcessesAsList
     ),

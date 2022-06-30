@@ -17,17 +17,12 @@ start(_StartType, _StartArgs) ->
     database:init_database(),
     events:init_events(),
     lager:info("Starting accounts-service: ~p~n", [node()]),
-
     start_cowboy(),
-    %% database:init_database(),
-
     Res = erlbank_flex_accounts_sup:start_link(),
     lager:info("Started account feed: ~p~n", [node()]),
     Res.
 
-
 stop(_State) ->
-    %% database:destroy_tables().
     ok.
 
 %% internal functions

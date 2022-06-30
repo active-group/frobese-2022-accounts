@@ -1,5 +1,13 @@
 -module(web_frontend).
 -export([init/2]).
+-include("data.hrl").
+
+% { account_service, Count, create_account, #account {account_number, name, surname, amount} }
+
+% single_account(Account) -> 
+%   io_lib:format(<< "
+% <ul><li> Name: ~p Surname: ~p Balance: ~p Id: ~p </li> </ul>~n
+% " >>, [Account#account.firstname, Account#account.surname, Account#account.amount, Account#account.account_number]).
 
 success() ->
     << "
@@ -36,16 +44,16 @@ init(Req, add) ->
     Secondname = maps:get(<<"accounts_secondname">>, KeyValues),
     Amount = 1000,
 
-    % TODO use account record instead
-    database:put_account({account, Accountnumber, Firstname, Secondname, Amount}),
-
-    Body = io_lib:format(success(), [Accountnumber]),
+    NewAccount = #account{account_number = Accountnumber, firstname = Firstname, surname = Secondname, amount = Amount},
     
-    Req2 = cowboy_req:reply(200, #{<<"content-type">> => <<"text/html">>}, Body, Req),
+    database:put_account(NewAccount),
+    accounts_feed:broadcast_new_account(NewAccount),
     lager:info("Created account with account number ~p", [Accountnumber]),
+
+    Body = io_lib:format(success(), [Accountnumber]),  
+
+    Req2 = cowboy_req:reply(200, #{<<"content-type">> => <<"text/html">>}, Body, Req),
     
-    Accounts = database:get_all_accounts(),
-    lager:info("All Accounts ~p", [Accounts]),
     {ok, Req2, []};
 
 init(Req0, index) ->

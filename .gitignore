@@ -18,6 +18,6 @@ erl_crash.dump
 _build
 logs
 rebar3.crashdump
-*/*.dets
+*.dets
 crash.log
 crash.log.*

@@ -5,7 +5,7 @@
 -export([start_link/1, handle_cast/2, init/1, broadcast_new_account/1, register_test/1, create_accounts/0]).
 
 start_link(Start) ->
-    gen_server:start_link({local, account_feed}, ?MODULE, Start, [{debug, [trace]}]).
+    gen_server:start_link({global, account_feed}, ?MODULE, Start, [{debug, [trace]}]).
 
 broadcast_new_account(Account) -> gen_server:cast(account_feed, Account).
 
@@ -20,7 +20,8 @@ handle_cast({hallo, Pid, _Counter}, {RegisteredProcessesState, Count}) ->
     gen_server:cast(Pid, {selber_hallo}),
     {noreply, {RegisteredProcessesState, Count}};
 
-handle_cast({register, Pid, Counter}, {RegisteredProcessesState, Count}) ->
+handle_cast({register, Pid, account_service, Counter}, {RegisteredProcessesState, Count}) ->
+    lager:info("Called register for Pid: ~p~n", [Pid]),
     NewRegisteredProcessesState = sets:add_element(Pid, RegisteredProcessesState),
     AllEvents = events:get_events_from(Counter + 1),
     send_events(AllEvents, Pid),
@@ -36,7 +37,7 @@ handle_cast(Account, {RegisteredProcessesState, Count}) ->
     ),
     {noreply, {RegisteredProcessesState, NewCount}}.
 
-register_test(Number) -> gen_server:cast(account_feed, {register, self(), Number}).
+register_test(Number) -> gen_server:cast(account_feed, {register, self(), account_service, Number}).
 
 
 create_accounts() -> 

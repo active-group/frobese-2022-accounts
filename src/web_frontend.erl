@@ -48,6 +48,7 @@ init(Req, add) ->
     
     database:put_account(NewAccount),
     accounts_feed:broadcast_new_account(NewAccount),
+    events:put_event(NewAccount),
     lager:info("Created account with account number ~p", [Accountnumber]),
 
     Body = io_lib:format(success(), [Accountnumber]),  
